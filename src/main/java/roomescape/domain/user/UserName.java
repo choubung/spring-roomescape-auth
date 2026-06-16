@@ -1,4 +1,4 @@
-package roomescape.domain.common;
+package roomescape.domain.user;
 
 import roomescape.exception.InvalidDomainStateException;
 

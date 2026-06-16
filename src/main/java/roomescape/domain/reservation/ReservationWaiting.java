@@ -1,7 +1,7 @@
 package roomescape.domain.reservation;
 
 import lombok.extern.slf4j.Slf4j;
-import roomescape.domain.common.UserName;
+import roomescape.domain.user.UserName;
 import roomescape.domain.theme.Theme;
 import roomescape.exception.ForbiddenException;
 

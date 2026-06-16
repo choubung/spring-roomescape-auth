@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import roomescape.domain.common.UserName;
+import roomescape.domain.user.UserName;
 import roomescape.service.ReservationUserCommandService;
 import roomescape.service.ReservationQueryService;
 import roomescape.service.WaitingQueryService;

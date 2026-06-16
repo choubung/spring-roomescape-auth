@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import roomescape.domain.common.UserName;
+import roomescape.domain.user.UserName;
 import roomescape.service.command.ReservationCommand;
 
 import java.time.LocalDate;

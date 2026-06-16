@@ -1,6 +1,6 @@
 package roomescape.service.command;
 
-import roomescape.domain.common.UserName;
+import roomescape.domain.user.UserName;
 
 import java.time.LocalDate;
 

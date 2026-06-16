@@ -1,6 +1,6 @@
 package roomescape.domain.service;
 
-import roomescape.domain.common.UserName;
+import roomescape.domain.user.UserName;
 import roomescape.domain.reservation.ReservationTime;
 import roomescape.domain.reservation.ReservationWaiting;
 import roomescape.domain.theme.Theme;

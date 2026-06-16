@@ -1,6 +1,6 @@
 package roomescape.domain.reservation;
 
-import roomescape.domain.common.UserName;
+import roomescape.domain.user.UserName;
 import roomescape.domain.theme.Theme;
 import roomescape.exception.ForbiddenException;
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import roomescape.dao.ReservationWaitingDao;
 import roomescape.domain.service.WaitingWithRank;
-import roomescape.domain.common.UserName;
+import roomescape.domain.user.UserName;
 import roomescape.domain.reservation.ReservationWaiting;
 import roomescape.domain.service.WaitingRanker;
 
