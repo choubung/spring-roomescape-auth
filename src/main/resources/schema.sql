@@ -2,6 +2,18 @@ DROP TABLE IF EXISTS reservation_waiting;
 DROP TABLE IF EXISTS reservation;
 DROP TABLE IF EXISTS reservation_time;
 DROP TABLE IF EXISTS theme;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    id          BIGINT AUTO_INCREMENT,
+    login_id    VARCHAR(50)  NOT NULL,
+    password    VARCHAR(255) NOT NULL,
+    name        VARCHAR(100) NOT NULL,
+    role        VARCHAR(20)  NOT NULL,
+
+    CONSTRAINT pk_user_id PRIMARY KEY (id),
+    CONSTRAINT uq_user_login_id UNIQUE (login_id)
+);
 
 CREATE TABLE theme
 (
