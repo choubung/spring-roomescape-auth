@@ -1,10 +1,10 @@
 package roomescape.domain.user;
 
 public record Password(
-        String password
+        String value
 ) {
     public Password {
-        if (password == null || password.isBlank()) {
+        if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("비밀번호는 비어있을 수 없습니다.");
         }
     }

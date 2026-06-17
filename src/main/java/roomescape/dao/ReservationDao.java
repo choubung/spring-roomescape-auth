@@ -129,7 +129,7 @@ public class ReservationDao {
                 INNER JOIN theme as theme ON reservation.theme_id = theme.id
                 WHERE reservation.name = ?
                 """;
-        return jdbcTemplate.query(sql, rowMapper, name.getName());
+        return jdbcTemplate.query(sql, rowMapper, name.value());
     }
 
     public Optional<Reservation> findBySlot(Slot slot) {

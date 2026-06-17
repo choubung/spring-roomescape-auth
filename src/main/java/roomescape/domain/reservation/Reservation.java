@@ -72,7 +72,7 @@ public class Reservation {
     }
 
     public String getUserNameValue() {
-        return userName.getName();
+        return userName.value();
     }
 
     public LocalDate getReservationDate() {

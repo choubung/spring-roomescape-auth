@@ -23,7 +23,7 @@ public record ReservationResponse(
     public static ReservationResponse from(Reservation reservation) {
         return new ReservationResponse(
                 reservation.getId(),
-                reservation.getUserName().getName(),
+                reservation.getUserName().value(),
                 reservation.getReservationDate(),
                 new TimeInfo(reservation.getReservationTime().getId(), reservation.getReservationTime().getStartAt()),
                 new ThemeInfo(
@@ -39,7 +39,7 @@ public record ReservationResponse(
     public static ReservationResponse from(WaitingWithRank waiting) {
         return new ReservationResponse(
                 waiting.id(),
-                waiting.name().getName(),
+                waiting.name().value(),
                 waiting.reservationDate(),
                 new TimeInfo(waiting.reservationTime().getId(), waiting.reservationTime().getStartAt()),
                 new ThemeInfo(

@@ -110,7 +110,7 @@ public class ReservationWaitingDao {
                 slot.getDate(),
                 slot.getTime().getId(),
                 slot.getTheme().getId(),
-                name.getName()
+                name.value()
         );
 
         return count != null && count > 0;
@@ -134,7 +134,7 @@ public class ReservationWaitingDao {
                 INNER JOIN theme ON reservation_waiting.theme_id = theme.id
                 WHERE reservation_waiting.name = ?
                 """;
-        return jdbcTemplate.query(sql, rowMapper, name.getName());
+        return jdbcTemplate.query(sql, rowMapper, name.value());
     }
 
     public List<ReservationWaiting> findAllBySlot(Slot slot) {

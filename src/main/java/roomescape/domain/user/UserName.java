@@ -21,7 +21,7 @@ public class UserName {
         return new UserName(name.trim());
     }
 
-    public String getName() {
+    public String value() {
         return name;
     }
 

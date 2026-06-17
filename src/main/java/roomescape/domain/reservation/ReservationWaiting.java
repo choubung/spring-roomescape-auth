@@ -59,7 +59,7 @@ public class ReservationWaiting {
     }
 
     public String getUserNameValue() {
-        return userName.getName();
+        return userName.value();
     }
 
     public LocalDate getWaitingDate() {
