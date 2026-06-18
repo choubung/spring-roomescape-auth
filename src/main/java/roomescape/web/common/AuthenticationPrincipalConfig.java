@@ -21,7 +21,18 @@ public class AuthenticationPrincipalConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginCheckInterceptor(jwtProvider))
                 .addPathPatterns("/**")
-                .excludePathPatterns("/signup", "/login", "/themes", "/times");
+                .excludePathPatterns(
+                        "/",
+                        "/signup",
+                        "/login",
+                        "/themes",
+                        "/times",
+                        "/*.html",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/favicon.ico"
+                );
     }
 
     @Override
