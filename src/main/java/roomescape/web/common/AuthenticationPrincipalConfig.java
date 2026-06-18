@@ -23,10 +23,13 @@ public class AuthenticationPrincipalConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/",
-                        "/signup",
-                        "/login",
-                        "/themes",
+                        "/signUp",
+                        "/login","/themes",
+                        "/themes/*",
+                        "/themes/**",
                         "/times",
+                        "/times/*",
+                        "/times/**",
                         "/*.html",
                         "/css/**",
                         "/js/**",
