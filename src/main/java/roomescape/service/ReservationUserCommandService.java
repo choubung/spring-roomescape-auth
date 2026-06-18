@@ -9,6 +9,7 @@ import roomescape.dao.ThemeDao;
 import roomescape.dao.ReservationWaitingDao;
 import roomescape.domain.service.WaitingPromotionResult;
 import roomescape.domain.service.WaitingPromotionService;
+import roomescape.domain.user.User;
 import roomescape.domain.user.UserName;
 import roomescape.domain.reservation.*;
 import roomescape.domain.theme.Theme;
@@ -45,7 +46,7 @@ public class ReservationUserCommandService {
     }
 
     @Transactional
-    public Reservation create(ReservationCommand command) {
+    public Reservation create(User user, ReservationCommand command) {
         Slot slot = Slot.from(
                 Schedule.from(
                         command.date(),
@@ -57,7 +58,7 @@ public class ReservationUserCommandService {
             throw new DuplicateException("해당 날짜와 시간에 이미 예약이 존재합니다.");
         }
 
-        Long savedId = reservationDao.create(Reservation.create(command.name(), slot, LocalDateTime.now(clock)));
+        Long savedId = reservationDao.create(Reservation.create(user.getName(), slot, LocalDateTime.now(clock)));
         return reservationDao.findById(savedId)
                 .orElseThrow(() -> new ResourceNotFoundException("예약이 정상적으로 생성되지 않았습니다."));
     }

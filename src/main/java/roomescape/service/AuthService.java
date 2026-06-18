@@ -8,6 +8,7 @@ import roomescape.domain.user.LoginId;
 import roomescape.domain.user.Password;
 import roomescape.domain.user.User;
 import roomescape.exception.AuthenticationException;
+import roomescape.exception.AuthorizationException;
 import roomescape.exception.DuplicateException;
 import roomescape.exception.ResourceNotFoundException;
 import roomescape.global.auth.JwtProvider;
@@ -39,5 +40,11 @@ public class AuthService {
         }
 
         return jwtProvider.generateToken(user);
+    }
+
+    public void validateAdmin(User user) {
+        if (!user.isAdmin()) {
+            throw new AuthorizationException("인증되지 않은 사용자입니다.");
+        }
     }
 }

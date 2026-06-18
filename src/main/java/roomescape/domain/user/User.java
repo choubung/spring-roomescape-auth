@@ -38,6 +38,10 @@ public class User {
         Objects.requireNonNull(role, "role은 null일 수 없습니다.");
     }
 
+    public boolean isAdmin() {
+        return UserRole.ADMIN.equals(getRole());
+    }
+
     public Long getId() {
         return id;
     }

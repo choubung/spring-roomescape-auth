@@ -7,6 +7,7 @@ import roomescape.dao.ReservationDao;
 import roomescape.dao.ReservationTimeDao;
 import roomescape.dao.ThemeDao;
 import roomescape.dao.ReservationWaitingDao;
+import roomescape.domain.user.User;
 import roomescape.domain.user.UserName;
 import roomescape.domain.reservation.*;
 import roomescape.domain.theme.Theme;
@@ -38,7 +39,7 @@ public class WaitingCommandService {
     }
 
     @Transactional
-    public ReservationWaiting create(WaitingCommand command) {
+    public ReservationWaiting create(User user, WaitingCommand command) {
         ReservationTime time = findTimeReference(command.timeId());
         Theme theme = findThemeReference(command.themeId());
 
@@ -47,25 +48,25 @@ public class WaitingCommandService {
         Reservation reservation = reservationDao.findBySlot(slot)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 날짜와 시간에 예약이 존재하지 않습니다."));
 
-        if (reservation.isOwnedBy(command.name())) {
+        if (reservation.isOwnedBy(user.getName())) {
             throw new DuplicateException("내가 예약한 시간에 예약대기를 생성할 수 없습니다.");
         }
 
-        if (waitingDao.existsBySlotAndName(slot, command.name())) {
+        if (waitingDao.existsBySlotAndName(slot, user.getName())) {
             throw new DuplicateException("같은 날짜/시간/테마에 여러 개의 예약 대기를 생성할 수 없습니다.");
         }
 
-        Long savedId = waitingDao.create(ReservationWaiting.create(command.name(), slot, LocalDateTime.now(clock)));
+        Long savedId = waitingDao.create(ReservationWaiting.create(user.getName(), slot, LocalDateTime.now(clock)));
         return waitingDao.findById(savedId)
                 .orElseThrow(() -> new ResourceNotFoundException("예약 대기가 정상적으로 생성되지 않았습니다."));
     }
 
     @Transactional
-    public void cancel(Long waitingId, UserName name) {
+    public void cancel(Long waitingId, User user) {
         ReservationWaiting waiting = waitingDao.findById(waitingId)
                 .orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 예약 대기입니다."));
         waiting.validateCancelable(LocalDateTime.now(clock));
-        waiting.validateOwnedBy(name);
+        waiting.validateOwnedBy(user.getName());
 
         waitingDao.delete(waiting);
     }

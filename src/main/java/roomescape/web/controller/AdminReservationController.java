@@ -2,13 +2,17 @@ package roomescape.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import roomescape.domain.reservation.Reservation;
+import roomescape.domain.user.User;
+import roomescape.service.AuthService;
 import roomescape.service.ReservationAdminCommandService;
 import roomescape.service.ReservationUserCommandService;
 import roomescape.service.ReservationQueryService;
+import roomescape.web.common.LoginUser;
 import roomescape.web.dto.request.ReservationRequest;
 import roomescape.web.dto.response.ReservationResponse;
 
@@ -23,9 +27,13 @@ public class AdminReservationController {
     private final ReservationAdminCommandService reservationAdminCommandService;
     private final ReservationUserCommandService reservationUserCommandService;
     private final ReservationQueryService reservationQueryService;
+    private final AuthService authService;
 
     @GetMapping
-    public ResponseEntity<List<ReservationResponse>> getAllReservations() {
+    public ResponseEntity<List<ReservationResponse>> getAllReservations(
+            @LoginUser User user
+    ) {
+        authService.validateAdmin(user);
         List<Reservation> allReservations = reservationQueryService.getAllReservations();
 
         List<ReservationResponse> reservationResponses = allReservations.stream()
@@ -36,9 +44,11 @@ public class AdminReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(
+            @LoginUser User user,
             @Valid @RequestBody ReservationRequest request
     ) {
-        Reservation reservation = reservationUserCommandService.create(ReservationRequest.toCommand(request));
+        authService.validateAdmin(user);
+        Reservation reservation = reservationUserCommandService.create(user, ReservationRequest.toCommand(request));
 
         Long savedId = reservation.getId();
         URI location = ServletUriComponentsBuilder
@@ -52,8 +62,10 @@ public class AdminReservationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(
+            @LoginUser User user,
             @PathVariable Long id
     ) {
+        authService.validateAdmin(user);
         reservationAdminCommandService.delete(id);
         return ResponseEntity.noContent().build();
     }

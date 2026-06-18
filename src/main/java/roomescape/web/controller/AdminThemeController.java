@@ -6,8 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import roomescape.domain.theme.Theme;
+import roomescape.domain.user.User;
+import roomescape.service.AuthService;
 import roomescape.service.ThemeCommandService;
 import roomescape.service.ThemeQueryService;
+import roomescape.web.common.LoginUser;
 import roomescape.web.dto.request.ThemeRequest;
 import roomescape.web.dto.response.ThemeResponse;
 
@@ -21,9 +24,13 @@ public class AdminThemeController {
 
     private final ThemeCommandService themeCommandService;
     private final ThemeQueryService themeQueryService;
+    private final AuthService authService;
 
     @GetMapping
-    public ResponseEntity<List<ThemeResponse>> getAllThemes() {
+    public ResponseEntity<List<ThemeResponse>> getAllThemes(
+            @LoginUser User user
+    ) {
+        authService.validateAdmin(user);
         List<Theme> allThemes = themeQueryService.findAllThemes();
         List<ThemeResponse> themeResponses = allThemes.stream()
                 .map(ThemeResponse::from)
@@ -33,8 +40,10 @@ public class AdminThemeController {
 
     @PostMapping
     public ResponseEntity<ThemeResponse> createTheme(
+            @LoginUser User user,
             @Valid @RequestBody ThemeRequest request
     ) {
+        authService.validateAdmin(user);
         Theme theme = themeCommandService.create(ThemeRequest.toCommand(request));
         Long savedId = theme.getId();
 
@@ -49,8 +58,10 @@ public class AdminThemeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTheme(
+            @LoginUser User user,
             @PathVariable Long id
     ) {
+        authService.validateAdmin(user);
         themeCommandService.delete(id);
         return ResponseEntity.noContent().build();
     }

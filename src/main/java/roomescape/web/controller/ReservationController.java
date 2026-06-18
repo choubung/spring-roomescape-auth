@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import roomescape.domain.user.User;
 import roomescape.domain.user.UserName;
 import roomescape.service.ReservationUserCommandService;
 import roomescape.service.ReservationQueryService;
 import roomescape.service.WaitingQueryService;
+import roomescape.web.common.LoginUser;
 import roomescape.web.dto.request.ReservationRequest;
 import roomescape.web.dto.request.ReservationUpdateRequest;
 import roomescape.web.dto.response.ReservationResponse;
@@ -28,11 +30,11 @@ public class ReservationController {
 
     @GetMapping
     public ResponseEntity<List<ReservationResponse>> getMyReservations(
-            @RequestParam String name
+            @LoginUser User user
     ) {
         List<ReservationResponse> responses = Stream.concat(
-                reservationQueryService.getByName(UserName.from(name)).stream().map(ReservationResponse::from),
-                waitingQueryService.getByName(UserName.from(name)).stream().map(ReservationResponse::from)
+                reservationQueryService.getByName(user.getName()).stream().map(ReservationResponse::from),
+                waitingQueryService.getByName(user.getName()).stream().map(ReservationResponse::from)
         ).toList();
 
         return ResponseEntity.ok(responses);
@@ -40,10 +42,11 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(
+            @LoginUser User user,
             @Valid @RequestBody ReservationRequest request
     ) {
         ReservationResponse reservationResponse = ReservationResponse.from(
-                reservationUserCommandService.create(ReservationRequest.toCommand(request)));
+                reservationUserCommandService.create(user, ReservationRequest.toCommand(request)));
 
         Long savedId = reservationResponse.id();
 
@@ -59,20 +62,20 @@ public class ReservationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> cancelReservation(
             @PathVariable Long id,
-            @RequestParam String name
+            @LoginUser User user
     ) {
-        reservationUserCommandService.cancel(id, UserName.from(name));
+        reservationUserCommandService.cancel(id, user.getName());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ReservationResponse> updateReservation(
             @PathVariable Long id,
-            @RequestParam String name,
+            @LoginUser User user,
             @Valid @RequestBody ReservationUpdateRequest request
     ) {
         ReservationResponse response = ReservationResponse.from(
-                reservationUserCommandService.update(id, UserName.from(name), ReservationUpdateRequest.toCommand(request)));
+                reservationUserCommandService.update(id, user.getName(), ReservationUpdateRequest.toCommand(request)));
         return ResponseEntity.ok(response);
     }
 }
