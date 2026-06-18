@@ -47,6 +47,10 @@ public class ReservationUserCommandService {
 
     @Transactional
     public Reservation create(User user, ReservationCommand command) {
+        /*
+        TODO: 관리자 생성의 경우는 타인 예약이 가능하게,
+         사용자는 본인만 가능하게 분기 처리 필요 -> 관리자 서비스에 생성 메서드 추가
+        */
         Slot slot = Slot.from(
                 Schedule.from(
                         command.date(),
