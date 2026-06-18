@@ -1,6 +1,7 @@
 package roomescape.domain.service;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import roomescape.domain.reservation.Reservation;
 import roomescape.domain.reservation.ReservationWaiting;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class WaitingPromotionService {
     private final WaitingRanker waitingRanker;
 

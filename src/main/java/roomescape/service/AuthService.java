@@ -1,6 +1,6 @@
 package roomescape.service;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import roomescape.dao.UserDao;
 import roomescape.domain.auth.Token;
@@ -14,7 +14,7 @@ import roomescape.exception.ResourceNotFoundException;
 import roomescape.global.auth.JwtProvider;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserDao userDao;

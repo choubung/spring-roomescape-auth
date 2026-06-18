@@ -4,11 +4,12 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.HandlerInterceptor;
 import roomescape.global.auth.AuthInfo;
 import roomescape.global.auth.JwtProvider;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LoginCheckInterceptor implements HandlerInterceptor {
     private final JwtProvider jwtProvider;
 
