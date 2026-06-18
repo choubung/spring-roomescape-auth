@@ -3,8 +3,26 @@ TRUNCATE TABLE reservation RESTART IDENTITY;
 TRUNCATE TABLE reservation_waiting RESTART IDENTITY;
 TRUNCATE TABLE reservation_time RESTART IDENTITY;
 TRUNCATE TABLE theme RESTART IDENTITY;
+TRUNCATE TABLE users RESTART IDENTITY;
 SET REFERENTIAL_INTEGRITY TRUE;
 
+-- ==========================================
+-- 🧑‍🤝‍🧑 테스트용 유저 데이터 구성
+-- ==========================================
+-- adminId는 규칙을 만족합니다. (영문 시작 + 4자 이상)
+INSERT INTO users (login_id, password, name, role)
+VALUES ('adminId', 'adminpw123', '관리자네오', 'ADMIN');
+
+INSERT INTO users (login_id, password, name, role) VALUES ('usera', 'password123', '유저A', 'USER');
+INSERT INTO users (login_id, password, name, role) VALUES ('userb', 'password123', '유저B', 'USER');
+INSERT INTO users (login_id, password, name, role) VALUES ('userc', 'password123', '유저C', 'USER');
+INSERT INTO users (login_id, password, name, role) VALUES ('userd', 'password123', '유저D', 'USER');
+INSERT INTO users (login_id, password, name, role) VALUES ('usere', 'password123', '유저E', 'USER');
+INSERT INTO users (login_id, password, name, role) VALUES ('userf', 'password123', '유저F', 'USER');
+
+-- ==========================================
+-- 🎪 테마 및 시간 데이터
+-- ==========================================
 INSERT INTO theme (name, thumbnail_url, description)
 VALUES ('공포의 저택', 'https://picsum.photos/seed/horror/400/300', '어둠 속에 숨겨진 공포를 체험하세요');
 
@@ -15,36 +33,24 @@ INSERT INTO reservation_time (start_at) VALUES ('10:00');
 INSERT INTO reservation_time (start_at) VALUES ('12:00');
 INSERT INTO reservation_time (start_at) VALUES ('13:00');
 
--- 과거 예약 (fixed clock: 2026-05-05)
-INSERT INTO reservation (name, date, time_id, theme_id)
-VALUES ('user_a', '2026-04-28', 1, 1);
+-- ==========================================
+-- 📅 예약 데이터 (상단의 login_id 언더바 제거 반영)
+-- ==========================================
+INSERT INTO reservation (name, date, time_id, theme_id) VALUES ('usera', '2026-04-28', 1, 1);
+INSERT INTO reservation (name, date, time_id, theme_id) VALUES ('userb', '2026-06-05', 2, 1);
+INSERT INTO reservation (name, date, time_id, theme_id) VALUES ('userc', '2026-06-05', 1, 1);
 
--- 미래 예약 (취소/변경 테스트 대상, id=2)
-INSERT INTO reservation (name, date, time_id, theme_id)
-VALUES ('user_b', '2026-06-05', 2, 1);
-
--- 중복 검증용 (user_b가 2026-06-05/time_id=1로 변경 시 409, id=3)
-INSERT INTO reservation (name, date, time_id, theme_id)
-VALUES ('user_c', '2026-06-05', 1, 1);
-
--- 과거 예약 대기 (id=1: 취소 불가 테스트용)
+-- ==========================================
+-- ⏳ 예약 대기 데이터
+-- ==========================================
+-- 1등: usere (id=1)
 INSERT INTO reservation_waiting (name, date, time_id, theme_id, created_at)
-VALUES ('user_d', '2026-04-28', 1, 1, '2026-04-27 10:30:00');
+VALUES ('usere', '2026-06-05', 1, 1, '2026-06-01 09:00:00');
 
--- 미래 예약 대기 (id=2: user_d, 2026-06-05/time2/theme1 → 취소 가능 테스트용)
+-- 2등: userb (id=2) -> 취소 대상
 INSERT INTO reservation_waiting (name, date, time_id, theme_id, created_at)
-VALUES ('user_d', '2026-06-05', 2, 1, '2026-06-05 10:30:00');
+VALUES ('userb', '2026-06-05', 1, 1, '2026-06-01 10:00:00');
 
--- 내 예약 & 대기 조회 테스트용
--- user_e: 2026-06-05/time1/theme1 대기 1번 (id=3)
+-- 3등: userf (id=3) -> 순번 당겨짐 확인 대상
 INSERT INTO reservation_waiting (name, date, time_id, theme_id, created_at)
-VALUES ('user_e', '2026-06-05', 1, 1, '2026-06-01 09:00:00');
-
--- user_b: 2026-06-05/time1/theme1 대기 2번 (id=4) → 예약(id=2) + 대기 동시 보유
-INSERT INTO reservation_waiting (name, date, time_id, theme_id, created_at)
-VALUES ('user_b', '2026-06-05', 1, 1, '2026-06-01 10:00:00');
-
--- 정렬 테스트용 대기 3번 유저 (2026-06-05/time1/theme1)
--- user_f: 대기 3번 (id=5)
-INSERT INTO reservation_waiting (name, date, time_id, theme_id, created_at)
-VALUES ('user_f', '2026-06-05', 1, 1, '2026-06-01 11:00:00');
+VALUES ('userf', '2026-06-05', 1, 1, '2026-06-01 11:00:00');

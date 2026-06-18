@@ -8,10 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import roomescape.dao.UserDao;
 import roomescape.domain.auth.Token;
 import roomescape.domain.user.LoginId;
 import roomescape.domain.user.Password;
 import roomescape.domain.user.User;
+import roomescape.global.auth.JwtProvider;
 import roomescape.service.AuthService;
 import roomescape.web.controller.AuthController;
 import roomescape.web.dto.request.LoginRequest;
@@ -35,6 +37,14 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
+
+    // 💡 [추가] 웹 설정(AuthenticationPrincipalConfig) 빌드 시
+    // 누락되어 컨텍스트 로드를 깨뜨리던 의존성 빈들을 가짜 Mock 빈으로 주입합니다.
+    @MockitoBean
+    private JwtProvider jwtProvider;
+
+    @MockitoBean
+    private UserDao userDao;
 
     @Test
     @DisplayName("회원가입 요청 시 정상적으로 201 CREATED 상태코드를 반환한다.")
@@ -66,6 +76,6 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token.value").value("generated-jwt-token-string")); // LoginResponse 구조에 맞게 조정 필요
+                .andExpect(jsonPath("$.token.value").value("generated-jwt-token-string"));
     }
 }

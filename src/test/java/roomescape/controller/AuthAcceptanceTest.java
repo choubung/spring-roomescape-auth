@@ -140,7 +140,7 @@ class AuthAcceptanceTest {
                 .then().log().all()
                 .extract();
 
-        assertThat(loginResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(loginResponse.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     static class PropertyInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {

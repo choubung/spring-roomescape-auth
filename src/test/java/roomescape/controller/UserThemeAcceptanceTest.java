@@ -12,7 +12,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 import roomescape.common.FixedClockConfig;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "JWT_SECRET_KEY=this-is-a-very-long-and-secure-secret-key-for-test-environment-32bytes"
+)
 @Sql(scripts = "/popular-theme-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Import(FixedClockConfig.class)
 public class UserThemeAcceptanceTest {
@@ -29,11 +32,11 @@ public class UserThemeAcceptanceTest {
     @DisplayName("가장 인기있는 테마 개수 10개를 들고오는지에 대한 테스트")
     void readAvailableTime() {
         RestAssured.given().log().all()
-                    .queryParam("limit", 10)
-                    .when().get("/themes/popular")
-                    .then().statusCode(200)
-                    .log().all()
-                    .body("size()", is(10));
+                .queryParam("limit", 10)
+                .when().get("/themes/popular")
+                .then().statusCode(200)
+                .log().all()
+                .body("size()", is(10));
     }
 
     @Test

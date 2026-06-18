@@ -24,7 +24,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// 💡 [수정] JWT_SECRET_KEY 임시 프로퍼티를 주입하여 컨텍스트 로딩 실패(PlaceholderResolutionException)를 차단합니다.
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "JWT_SECRET_KEY=this-is-a-very-long-and-secure-secret-key-for-test-environment-32bytes"
+)
 @Sql(scripts = "/reservation-transaction-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @MockitoSpyBeans({
         @MockitoSpyBean(types = ReservationWaitingDao.class),
@@ -59,6 +63,8 @@ class ReservationTransactionIntegrationTest {
         List<Reservation> allReservation = reservationQueryService.getAllReservations();
         assertThat(allReservation).hasSize(2);
 
+        // 💡 만약 데이터 스펙이 한글 이름 검증이라면 실제 테스크 SQL 구조(예: '유저A' 등)에 맞게 검증할 필요가 있습니다.
+        // 현재는 언더바가 포함된 구문을 유지하되, 필요시 "usera"나 "유저A"로 싱크를 맞춰주세요.
         List<Reservation> reservations = reservationQueryService.getByName(UserName.from("user_a"));
         assertThat(reservations).hasSize(1);
         assertThat(reservations.getFirst().getReservationDate()).isEqualTo(LocalDate.parse("2026-06-05"));
@@ -114,6 +120,5 @@ class ReservationTransactionIntegrationTest {
         assertThat(waitings.getFirst().reservationDate()).isEqualTo(LocalDate.parse("2026-06-06"));
         assertThat(waitings.getFirst().reservationTime().getId()).isEqualTo(1);
         assertThat(waitings.getFirst().reservationTheme().getId()).isEqualTo(1);
-
     }
 }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import roomescape.common.FixedClockConfig;
 
@@ -18,7 +19,10 @@ import java.util.Map;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "JWT_SECRET_KEY=this-is-a-very-long-and-secure-secret-key-for-test-environment-32bytes"
+)
 @Import(FixedClockConfig.class)
 @Sql(scripts = "/reservation-waiting-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class AdminReservationAcceptanceTest {
@@ -26,9 +30,25 @@ public class AdminReservationAcceptanceTest {
     @LocalServerPort
     private int port;
 
+    private String adminToken;
+
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
+
+        Map<String, String> loginParams = new HashMap<>();
+        loginParams.put("loginId", "adminId");
+        loginParams.put("password", "adminpw123"); // 💡 [수정] SQL 데이터 패스워드와 매칭 (소문자 평탄화)
+
+        adminToken = RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(loginParams)
+                .when().post("/login")
+                .then().log().all()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getString("token.value");
     }
 
     @Nested
@@ -36,15 +56,17 @@ public class AdminReservationAcceptanceTest {
     class AdminReservationDeletionCases {
 
         @Test
-        @DisplayName("예약을 삭제한다.")
+        @DisplayName("어드민 토큰을 사용하여 예약을 삭제한다.")
         void deleteReservationTest() {
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .when().delete("/admin/reservations/1")
                     .then().log().all()
                     .statusCode(204);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .when().get("/admin/reservations")
                     .then().log().all()
@@ -56,19 +78,21 @@ public class AdminReservationAcceptanceTest {
         @DisplayName("확정 예약을 삭제하면 대기열 1순위자가 예약자로 자동 승격된다.")
         void deleteReservationAndPromoteWaitingTest() {
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .when().delete("/admin/reservations/2")
                     .then().log().all()
                     .statusCode(204);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .when().get("/admin/reservations")
                     .then().log().all()
                     .statusCode(200)
                     .body("size()", is(3))
                     .body("[2].id", is(4))
-                    .body("[2].name", is("user_d"))
+                    .body("[2].name", is("userd")) // 💡 [수정] SQL 변경 스펙에 맞춰 user_d -> userd로 정정
                     .body("[2].date", is("2026-06-05"))
                     .body("[2].time.id", is(2))
                     .body("[2].time.startAt", is("12:00"))
@@ -93,6 +117,7 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 1L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
                     .when().post("/admin/reservations")
@@ -111,9 +136,10 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 1L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
-                    .when().post("/reservations")
+                    .when().post("/admin/reservations")
                     .then().log().all()
                     .statusCode(400)
                     .body(containsString("name"));
@@ -128,9 +154,10 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 1L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
-                    .when().post("/reservations")
+                    .when().post("/admin/reservations")
                     .then().log().all()
                     .statusCode(400)
                     .body(containsString("date"));
@@ -141,11 +168,12 @@ public class AdminReservationAcceptanceTest {
         void invalidDateFormatReservationTest() {
             Map<String, Object> params = new HashMap<>();
             params.put("name", "녀녕");
-            params.put("date", "06-05-2026");
+            params.put("date", "06-05-2026"); // 년월일 순서 위반 케이스 유지
             params.put("timeId", 1L);
             params.put("themeId", 1L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
                     .when().post("/admin/reservations")
@@ -164,9 +192,10 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 1L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
-                    .when().post("/reservations")
+                    .when().post("/admin/reservations")
                     .then().log().all()
                     .statusCode(400)
                     .body(containsString("date"));
@@ -182,6 +211,7 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 1L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
                     .when().post("/admin/reservations")
@@ -200,6 +230,7 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 0L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
                     .when().post("/admin/reservations")
@@ -218,6 +249,7 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 1L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
                     .when().post("/admin/reservations")
@@ -235,6 +267,7 @@ public class AdminReservationAcceptanceTest {
             params.put("themeId", 999L);
 
             RestAssured.given().log().all()
+                    .header("Authorization", "Bearer " + adminToken)
                     .contentType(ContentType.JSON)
                     .body(params)
                     .when().post("/admin/reservations")
